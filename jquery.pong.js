@@ -1,30 +1,31 @@
-//ZOMG! jQuery pong!! W00t, yeah.
-//Based on the one by a guy named Ben White @ benwhite@columbus.rr.com
-//jQuery'd by Ben Ogle. 
+// ex: set ts=4 et:
+// Based on the one by a guy named Ben White @ benwhite@columbus.rr.com
+// jQuery'd by Ben Ogle. 
+// added option for second computer player to demonstrate round-trip time
 
 (function($){    
     $.fn.pong = function(ballImage, options) {
         
         var defaults = {
-            targetSpeed: 30,    //ms
-            ballAngle: 45,        //degrees
-            ballSpeed: 8,         //pixels per update
-            compSpeed: 5,         //speed of your opponent!!
-            playerSpeed: 5,     //pixels per update
+            autoStart: false, // should we wait for focus or just start?
+            secondComp: false,// should the right player be a computer too
+            targetSpeed: 30,  //ms
+            ballAngle: 45,    //degrees
+            ballSpeed: 8,     //pixels per update
+            compSpeed: 5,     //speed of your opponent!!
+            playerSpeed: 5,   //pixels per update
             difficulty: 5,
-            width: 400,             //px
-            height: 300,            //px
-            paddleWidth: 10,    //px
+            width: 400,       //px
+            height: 300,      //px
+            paddleWidth: 10,  //px
             paddleHeight: 40, //px
-            paddleBuffer: 1,    //px from the edge of the play area
-            ballWidth: 14,        //px
-            ballHeight: 14,     //px
-            playTo: 10                //points
+            paddleBuffer: 1,  //px from the edge of the play area
+            ballWidth: 14,    //px
+            ballHeight: 14,   //px
+            playTo: 10        //points
         }
         
         var opts = $.extend(defaults, options);
-        
-        ////functions!
         
         function PositionBall(bolSide, gameData, leftPaddle, rightPaddle, ball, score) {
             
@@ -54,16 +55,21 @@
                 gameData.compScore++;
             }
             
-            score.html('browser ' + gameData.compScore + ' | ' + 'you ' + gameData.playerScore);
+            score.html('' + gameData.compScore + ' | ' + '' + gameData.playerScore);
             
             if (gameData.playerScore == opts.playTo || gameData.compScore == opts.playTo) {
                 ball.css('visibility', 'hidden');
                 gameData.gameOver = true;
                 
-                if(gameData.playerScore == opts.playTo)
-                    score.append('; you win!');
-                else
-                    score.append('; you lose :(');
+                if (opts.secondComp)
+                {
+                    score.append('<br>\n<br>\nGame Over');
+                } else {
+                    if(gameData.playerScore == opts.playTo)
+                        score.append('; you win!');
+                    else
+                        score.append('; you lose :(');
+                }
                     
             } else {
                 PositionBall(bolUser, gameData, leftPaddle, rightPaddle, ball, score);
@@ -74,11 +80,17 @@
         function Update(gameData, leftPaddle, rightPaddle, ball, score, msg) {
             
             if (gameData.gameOver) {
-                msg.html('click to start!');
+                if (opts.autoStart)
+                {
+                    setTimeout(function(){Start(gameData, leftPaddle, rightPaddle, ball, score, msg);}, 2000);
+                }
+                else
+                    msg.html('click to start!');
                 return;
             }
         
-            msg.html('press ESC to stop');
+            if (!opts.autoStart)
+                msg.html('press ESC to stop');
             
             // Dynamically Adjust Game Speed
         
@@ -91,7 +103,7 @@
         
             setTimeout(function(){Update(gameData, leftPaddle, rightPaddle, ball, score, msg)}, gameData.speed);
         
-            //	MoveBall
+            // MoveBall
         
             var d = opts.ballAngle * Math.PI / 180;
             gameData.y += Math.round(opts.ballSpeed*Math.sin(d));
@@ -127,21 +139,52 @@
             }
             
             leftPaddle.css('top', LeftTop+'px');
-        
-            //	Move Player
-        
-            var RightTop = parseInt(rightPaddle.css('top'));
-            if (gameData.up) 
-                RightTop -= opts.playerSpeed;
-            if (gameData.down) 
-                RightTop += opts.playerSpeed;
-    
-            if (RightTop < 1)
-                RightTop = 1;
-            if ((RightTop+opts.paddleHeight+1) > opts.height) 
-                RightTop=opts.height-opts.paddleHeight-1;
 
-            rightPaddle.css('top', RightTop+'px');
+            //	Move Player
+            if (opts.secondComp)
+            {
+                var RightTop = parseInt(rightPaddle.css('top'));
+                var RightCenter = (opts.paddleHeight/2) + RightTop
+            
+                if (Math.cos(d) < 0 || (gameData.x < opts.width/(2-(gameData.compAdj/(opts.difficulty*10))))) {
+                    var Center = (opts.height/2);
+                } else {
+                    var BallTop = gameData.y;
+                    var Center = (opts.ballHeight/2) +BallTop;
+                }
+                var MoveDiff = Math.abs(Center - RightCenter);
+                if (MoveDiff > opts.compSpeed)
+                    MoveDiff = opts.compSpeed;
+                    
+                if (Center > RightCenter) 
+                    RightTop += MoveDiff;
+                else 
+                    RightTop -= MoveDiff;
+    
+                if (RightTop < 1)
+                    RightTop = 1;
+                    
+                if ((RightTop+opts.paddleHeight+1) > opts.height) {
+                    RightTop = opts.height - opts.paddleHeight - 1;
+                }
+
+                rightPaddle.css('top', RightTop+'px');
+
+            } else {
+        
+                var RightTop = parseInt(rightPaddle.css('top'));
+                if (gameData.up) 
+                    RightTop -= opts.playerSpeed;
+                if (gameData.down) 
+                    RightTop += opts.playerSpeed;
+        
+                if (RightTop < 1)
+                    RightTop = 1;
+                if ((RightTop+opts.paddleHeight+1) > opts.height) 
+                    RightTop=opts.height-opts.paddleHeight-1;
+    
+                rightPaddle.css('top', RightTop+'px');
+            }
         
             //	Check Top/Bottom/Left/Right
         
@@ -258,8 +301,8 @@
             $this.css('background', '#000');
             $this.css('position', 'relative');
             
-            $this.append('<textarea class="field" style="position:absolute;background:#000;border:0;top:-9999; left:-9999; width:0;height0;"></textarea>');
-            $this.append('<div class="score" style="position:relative;color:#ffffff; font-family: sans-serif; text-align: center; font-weight: bold;">browser 0 | you 0</div>');
+            //$this.append('<textarea class="field" style="position:absolute;background:#000;border:0;top:-9999; left:-9999; width:0;height0;"></textarea>');
+            $this.append('<div class="score" style="position:relative;color:#ffffff; font-family: sans-serif; text-align: center; font-weight: bold;">0 | 0</div>');
             $this.append('<div class="leftPaddle" style="position:absolute;background-color:#ffffff;"></div>');
             $this.append('<div class="rightPaddle" style="position:absolute;background-color:#ffffff;"></div>');
             $this.append('<img src="'+ballImage+'" class="ball" style="position:absolute;visibility:hidden;">');
@@ -297,11 +340,14 @@
             
             gameData.speed = opts.targetSpeed;
             Update(gameData, leftPaddle, rightPaddle, ball, score, msg);
-            
-            $this.click(function(){
-                field.focus();
+
+            if (opts.autoStart)
                 Start(gameData, leftPaddle, rightPaddle, ball, score, msg);
-            })
+            else // wait for click
+                $this.click(function(){
+                    field.focus();
+                    Start(gameData, leftPaddle, rightPaddle, ball, score, msg);
+                })
         });    
     };    
 })(jQuery);    
