@@ -63,7 +63,7 @@
                 
                 if (opts.secondComp)
                 {
-                    score.append('<br>\n<br>\nGame Over');
+                    score.append('<br>\nGame Over');
                 } else {
                     if(gameData.playerScore == opts.playTo)
                         score.append('; you win!');
