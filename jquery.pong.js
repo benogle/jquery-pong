@@ -126,12 +126,12 @@
             
             // Dynamically Adjust Game Speed
         
-            //var tmpDelay = new Date();
-            //var Diff = tmpDelay.valueOf() - gameData.delay.valueOf() - opts.target;
-            //gameData.speed += (Diff > 5)?-1:0;
-            //gameData.speed += (Diff < -5)?1:0;
-            //gameData.speed = Math.abs(gameData.speed);
-            //gameData.delay = tmpDelay;
+            var tmpDelay = new Date();
+            var Diff = tmpDelay.valueOf() - gameData.delay.valueOf() - opts.target;
+            gameData.speed += (Diff > 5)?-1:0;
+            gameData.speed += (Diff < -5)?1:0;
+            gameData.speed = Math.abs(gameData.speed);
+            gameData.delay = tmpDelay;
         
             setTimeout(function(){Update(gameData, balls)}, gameData.speed);
 
