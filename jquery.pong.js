@@ -201,8 +201,10 @@
                 var RightCenter = (opts.paddleHeight/2) + RightTop
             
                 if (Math.cos(d) < 0 || (gameData.x[rightballi] < opts.width/(2-(gameData.compAdj/(opts.difficulty*10))))) {
+                    /* if the rightmost ball is travelling away from me or not in my half, then go back to center */
                     var Center = (opts.height/2);
                 } else {
+                    /* ...otherwise, center on the incoming ball */
                     var BallTop = gameData.y[rightballi];
                     var Center = (opts.ballHeight/2) +BallTop;
                 }
