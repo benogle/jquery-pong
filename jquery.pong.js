@@ -31,20 +31,28 @@
         defaults.ballAngle = [defaults.ballAngle];
 
         for (var i = 0; i < defaults.ballCount; i++)
-            defaults.ballAngle.push(defaults.ballAngle[0]+10)
-
+            defaults.ballAngle.push(defaults.ballAngle[0] + (-1 + (Math.random() * 2)))
         
-        function PositionBalls(bolSide, gameData, leftPaddle, rightPaddle, balls, score) {
+        function PositionBalls(leftBallCnt, rightBallCnt, gameData, leftPaddle, rightPaddle, balls, score, scoringBallIndexs) {
 
-            for (var i = 0; i < balls.length; i++)
+            if (leftBallCnt == 0 && rightBallCnt == 0)
             {
+                // start of game, populate all balls
+                for (var i = 0; i < balls.length; i++)
+                    scoringBallIndexs.push(i);
+            }
+
+            for (var j = 0; j < scoringBallIndexs.length; j++)
+            {
+                var i = scoringBallIndexs[j];
                 var ball = balls[i];
-            
+                var bolSide = gameData.x[i] <= 12; // if the rightside is scored on, ball will not be on the left side
+
             if (bolSide) {
-                gameData.x[i] = opts.width - opts.paddleWidth - opts.paddleBuffer - opts.ballWidth - 10;
+                gameData.x[i] = opts.width - opts.paddleWidth - opts.paddleBuffer - opts.ballWidth - (i * 60);
             }
             else {
-                gameData.x[i] = opts.paddleWidth + opts.paddleBuffer + 10;
+                gameData.x[i] = opts.paddleWidth + opts.paddleBuffer + (i * 60);
             }
             gameData.y[i] = Math.round(Math.random() * (opts.height - ball.height()));
             
@@ -59,21 +67,24 @@
             }
         }
         
-        function UpdateScore(bolUser, gameData, leftPaddle, rightPaddle, balls, score, msg) {
-            
-            if (bolUser){
-                gameData.playerScore++;
-            }else{
-                gameData.compScore++;
+        function UpdateScore(leftScoreDiff, rightScoreDiff, gameData, leftPaddle, rightPaddle, balls, score, msg, scoringBallIndexs) {
+
+            if (leftScoreDiff == 0 && rightScoreDiff == 0)
+            {
+                gameData.compScore = 0;
+                gameData.playerScore = 0;
+            } else {
+                gameData.compScore += leftScoreDiff;
+                gameData.playerScore += rightScoreDiff;
             }
-            
+
             score.html('' + gameData.compScore + ' | ' + '' + gameData.playerScore);
-            
-            if (gameData.playerScore == opts.playTo || gameData.compScore == opts.playTo) {
-                for (var ball in balls)
-                    ball.css('visibility', 'hidden');
+
+            if (gameData.playerScore >= opts.playTo || gameData.compScore >= opts.playTo) {
+                for (var i = 0; i < balls.length; i++)
+                    balls[i].css('visibility', 'hidden');
                 gameData.gameOver = true;
-                
+
                 if (opts.secondComp)
                 {
                     score.append('<br>\nGame Over');
@@ -83,12 +94,12 @@
                     else
                         score.append('; you lose :(');
                 }
-                    
+
             } else {
-                PositionBalls(bolUser, gameData, leftPaddle, rightPaddle, balls, score);
+                PositionBalls(leftScoreDiff, rightScoreDiff, gameData, leftPaddle, rightPaddle, balls, score, scoringBallIndexs);
             }
         }
-        
+
         ///Is run by the setTimeout function. Updates the gameData object. 
         function Update(gameData, leftPaddle, rightPaddle, balls, score, msg) {
             
@@ -107,22 +118,33 @@
             
             // Dynamically Adjust Game Speed
         
-            var tmpDelay = new Date();
-            var Diff = tmpDelay.valueOf() - gameData.delay.valueOf() - opts.target;
-            gameData.speed += (Diff > 5)?-1:0;
-            gameData.speed += (Diff < -5)?1:0;
-            gameData.speed = Math.abs(gameData.speed);
-            gameData.delay = tmpDelay;
+            //var tmpDelay = new Date();
+            //var Diff = tmpDelay.valueOf() - gameData.delay.valueOf() - opts.target;
+            //gameData.speed += (Diff > 5)?-1:0;
+            //gameData.speed += (Diff < -5)?1:0;
+            //gameData.speed = Math.abs(gameData.speed);
+            //gameData.delay = tmpDelay;
         
             setTimeout(function(){Update(gameData, leftPaddle, rightPaddle, balls, score, msg)}, gameData.speed);
 
             var VB = [];
             var HB = [];
+
+            var leftScoreDiff = 0;
+            var rightScoreDiff = 0;
+            var scoringBallIndexs = [];
         
             // MoveBall
+            var leftballi = 0;
+            var rightballi = 0;
             for (var i = 0; i < balls.length; i++)
             {
                 var ball = balls[i];
+
+                if (gameData.x[i] < gameData.x[leftballi])
+                    leftballi = i;
+                else if (gameData.x[i] > gameData.x[rightballi])
+                    rightballi = i;
 
                 var d = opts.ballAngle[i] * Math.PI / 180;
                 gameData.y[i] += Math.round(opts.ballSpeed*Math.sin(d));
@@ -131,24 +153,24 @@
                 HB.push(0-opts.ballAngle[i]);
             }
 
-            var nearballi = 0; // FIXME: calculate
-            var d = opts.ballAngle[nearballi] * Math.PI / 180;
 
             //	Move Computer
+            
+            var d = opts.ballAngle[leftballi] * Math.PI / 180;
 
             var LeftTop = parseInt(leftPaddle.css('top'));
             var LeftCenter = (opts.paddleHeight/2) + LeftTop
         
-            if (Math.cos(d) > 0 || (gameData.x[nearballi] > opts.width/(2-(gameData.compAdj/(opts.difficulty*10))))) {
+            if (Math.cos(d) > 0 || (gameData.x[leftballi] > opts.width/(2-(gameData.compAdj/(opts.difficulty*10))))) {
                 var Center = (opts.height/2);
             } else {
-                var BallTop = gameData.y[nearballi];
+                var BallTop = gameData.y[leftballi];
                 var Center = (opts.ballHeight/2) +BallTop;
             }
             var MoveDiff = Math.abs(Center - LeftCenter);
             if (MoveDiff > opts.compSpeed)
                 MoveDiff = opts.compSpeed;
-                
+
             if (Center > LeftCenter) 
                 LeftTop += MoveDiff;
             else 
@@ -160,33 +182,34 @@
             if ((LeftTop+opts.paddleHeight+1) > opts.height) {
                 LeftTop = opts.height - opts.paddleHeight - 1;
             }
-            
+
             leftPaddle.css('top', LeftTop+'px');
 
             //	Move Player
+            var d = opts.ballAngle[rightballi] * Math.PI / 180;
             if (opts.secondComp)
             {
                 var RightTop = parseInt(rightPaddle.css('top'));
                 var RightCenter = (opts.paddleHeight/2) + RightTop
             
-                if (Math.cos(d) < 0 || (gameData.x[nearballi] < opts.width/(2-(gameData.compAdj/(opts.difficulty*10))))) {
+                if (Math.cos(d) < 0 || (gameData.x[rightballi] < opts.width/(2-(gameData.compAdj/(opts.difficulty*10))))) {
                     var Center = (opts.height/2);
                 } else {
-                    var BallTop = gameData.y[nearballi];
+                    var BallTop = gameData.y[rightballi];
                     var Center = (opts.ballHeight/2) +BallTop;
                 }
                 var MoveDiff = Math.abs(Center - RightCenter);
                 if (MoveDiff > opts.compSpeed)
                     MoveDiff = opts.compSpeed;
-                    
+
                 if (Center > RightCenter) 
                     RightTop += MoveDiff;
                 else 
                     RightTop -= MoveDiff;
-    
+
                 if (RightTop < 1)
                     RightTop = 1;
-                    
+
                 if ((RightTop+opts.paddleHeight+1) > opts.height) {
                     RightTop = opts.height - opts.paddleHeight - 1;
                 }
@@ -229,13 +252,15 @@
                 opts.ballAngle[i] = VB[i];
                 gameData.compAdj -= opts.difficulty;
                 
-                UpdateScore(true, gameData, leftPaddle, rightPaddle, balls, score, msg);
+                rightScoreDiff++;
+                scoringBallIndexs.push(i);
             }
             
             if (gameData.x[i] > opts.width-opts.ballWidth) {
                 gameData.x[i]=opts.width-opts.ballWidth;
                 opts.ballAngle[i] = VB[i];
-                UpdateScore(false, gameData, leftPaddle, rightPaddle, balls, score, msg);
+                leftScoreDiff++;
+                scoringBallIndexs.push(i);
             }
         
             //	Check Left Paddle
@@ -244,7 +269,7 @@
             if (gameData.x[i] < MaxLeft) {
                 if (gameData.y[i] < (opts.paddleHeight + LeftTop) && (gameData.y[i]+opts.ballHeight) > LeftTop) {
                     gameData.x[i] = MaxLeft;
-                    opts.ballAngle = VB[i];
+                    opts.ballAngle[i] = VB[i];
                     gameData.compAdj++;
                 }
             }
@@ -255,7 +280,7 @@
             if (gameData.x[i] > MaxRight) {
                 if (gameData.y[i] < (opts.paddleHeight + RightTop) && (gameData.y[i]+opts.ballHeight) > RightTop) {
                     gameData.x[i] = MaxRight;
-                    opts.ballAngle = VB[i];
+                    opts.ballAngle[i] = VB[i];
                 }
             }
         
@@ -267,8 +292,12 @@
             }
 
             } // ball loop
+
+            if (leftScoreDiff > 0 || rightScoreDiff > 0)
+                UpdateScore(leftScoreDiff, rightScoreDiff, gameData, leftPaddle, rightPaddle, balls, score, msg, scoringBallIndexs);
+
         }
-        
+
         function Start(gameData, leftPaddle, rightPaddle, balls, score, msg) {
             
             if (gameData.gameOver) {
@@ -276,11 +305,10 @@
                 gameData.playerScore = -1;
                 gameData.compScore = -1;
                 setTimeout(function(){Update(gameData, leftPaddle, rightPaddle, balls, score, msg)}, gameData.speed);
-                UpdateScore(false, gameData, leftPaddle, rightPaddle, balls, score, msg);
-                UpdateScore(true, gameData, leftPaddle, rightPaddle, balls, score, msg);
+                UpdateScore(0, 0, gameData, leftPaddle, rightPaddle, balls, score, msg, []);
             }
         }
-    
+
         return this.each(function() {
             
             var gameData = {
