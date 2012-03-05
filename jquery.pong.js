@@ -34,29 +34,32 @@
         defaults.ballAngle = [defaults.ballAngle];
 
         for (var i = 0; i < defaults.ballCount; i++)
-            defaults.ballAngle.push(defaults.ballAngle[0] + (-1 + (Math.random() * 2)))
+            defaults.ballAngle.push(defaults.ballAngle[0] + (-5 + (Math.random() * 10)))
         
         function PositionBalls(leftBallCnt, rightBallCnt, gameData, balls, scoringBallIndexs)
         {
 
             if (leftBallCnt == 0 && rightBallCnt == 0)
             {
+                gameData.x = []
                 // start of game, populate all balls
                 for (var i = 0; i < balls.length; i++)
+                {
                     scoringBallIndexs.push(i);
+                    gameData.x.push(Math.random() * 24)
+                }
             }
 
             for (var j = 0; j < scoringBallIndexs.length; j++)
             {
                 var i = scoringBallIndexs[j];
                 var ball = balls[i];
-                var bolSide = gameData.x[i] <= 12; // if the rightside is scored on, ball will not be on the left side
+                var bolSide = gameData.x[i] <= 12; // if the rightside is scored on, ball will be on the left side
 
                 if (bolSide) {
-                    gameData.x[i] = opts.width - opts.paddleWidth - opts.paddleBuffer - opts.ballWidth - (i * 60);
-                }
-                else {
-                    gameData.x[i] = opts.paddleWidth + opts.paddleBuffer + (i * 60);
+                    gameData.x[i] = opts.width - opts.paddleWidth - opts.paddleBuffer - opts.ballWidth - (Math.random() * 100);
+                } else {
+                    gameData.x[i] = opts.paddleWidth + opts.paddleBuffer + (Math.random() * 100);
                 }
                 gameData.y[i] = Math.round(Math.random() * (opts.height - ball.height()));
             
