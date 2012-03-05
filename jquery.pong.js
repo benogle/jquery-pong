@@ -154,7 +154,7 @@
             }
 
 
-            //	Move Computer
+            // Move Computer
             
             var d = opts.ballAngle[leftballi] * Math.PI / 180;
 
@@ -185,7 +185,7 @@
 
             leftPaddle.css('top', LeftTop+'px');
 
-            //	Move Player
+            // Move Player
             var d = opts.ballAngle[rightballi] * Math.PI / 180;
             if (opts.secondComp)
             {
@@ -232,7 +232,7 @@
                 rightPaddle.css('top', RightTop+'px');
             }
         
-            //	Check Top/Bottom/Left/Right
+            // Check Top/Bottom/Left/Right
 
             for (var i = 0; i < balls.length; i++)
             {
@@ -263,7 +263,7 @@
                 scoringBallIndexs.push(i);
             }
         
-            //	Check Left Paddle
+            // Check Left Paddle
         
             var MaxLeft = opts.paddleWidth + opts.paddleBuffer;
             if (gameData.x[i] < MaxLeft) {
@@ -274,7 +274,7 @@
                 }
             }
         
-            //	Check Right Paddle
+            // Check Right Paddle
         
             var MaxRight = opts.width - opts.ballWidth - opts.paddleWidth - opts.paddleBuffer;
             if (gameData.x[i] > MaxRight) {
@@ -312,14 +312,14 @@
         return this.each(function() {
             
             var gameData = {
-                up: false,                //Down key pressed?
-                down: false,            //Down key pressed?
-                x: [],		//Ball X Pos
-                y: [],	                //Ball Y Pos
-                compAdj: 0,	//Computer Adjust
-                compScore: 0,	//Computer Score
-                playerScore: 0,	//Player Score
-                speed: 30,	//Actual Game Speed (Dynamic)
+                up: false,      // Down key pressed?
+                down: false,    // Down key pressed?
+                x: [],          // Ball X Pos
+                y: [],          // Ball Y Pos
+                compAdj: 0,     // Computer Adjust
+                compScore: 0,   // Computer Score
+                playerScore: 0, // Player Score
+                speed: 30,      // Actual Game Speed (Dynamic)
                 gameOver: true,
                 delay: new Date()
             }
@@ -368,13 +368,13 @@
             var score = $this.children('.score');
             var msg = $this.children('.msg');
             var field = $this.children('.field');
-            
+
             field.keydown( keyDownEvent );
             field.keyup( keyUpEvent );
-            
+
             //field.css('width', 200);
             //field.css('height', 20);
-            
+
             //initialize all
             $this.css('width', opts.width);
             $this.css('height', opts.height);
@@ -414,4 +414,4 @@
                 })
         });    
     };
-})(jQuery);    
+})(jQuery);
