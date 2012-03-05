@@ -1,7 +1,10 @@
 // ex: set ts=4 et:
 // Based on the one by a guy named Ben White @ benwhite@columbus.rr.com
 // jQuery'd by Ben Ogle. 
-// added option for second computer player to demonstrate round-trip time
+// add autoStart, secondComp, ballCount support: Ryan Flynn github.com/rflynn 2012
+
+// TODO: refactor scattered ball data into a proper object
+// TODO: unify separate left/right side handling
 
 (function($){    
     $.fn.pong = function(ballImage, options) {
