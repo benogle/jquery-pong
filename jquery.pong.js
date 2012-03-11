@@ -13,6 +13,7 @@
             autoStart: false, // should we wait for focus or just start?
             secondComp: false,// should the right player be a computer too
             ballCount: 1,
+            profile: false,
             targetSpeed: 30,  //ms
             ballAngle: 45,  //degrees
             ballSpeed: 8,     //pixels per update
@@ -84,18 +85,31 @@
             } else {
                 gameData.compScore += leftScoreDiff;
                 gameData.playerScore += rightScoreDiff;
+
+                gameData.compScoreTotal +=  leftScoreDiff;
+                gameData.playerScoreTotal += rightScoreDiff;
             }
 
-            gameData.score.html('' + gameData.compScore + ' | ' + '' + gameData.playerScore);
+            scoreTxt = '' + gameData.compScore + ' | ' + gameData.playerScore;
 
             if (gameData.playerScore >= opts.playTo || gameData.compScore >= opts.playTo) {
+                gameData.gameOver = true;
+                /* in parallel implementation it's possible to score > playTo... */
+                gameData.playerScore = Math.min(opts.playTo, gameData.playerScore);
+                gameData.compScore = Math.min(opts.playTo, gameData.compScore);
+                /* hide all balls, we're done */
                 for (var i = 0; i < balls.length; i++)
                     balls[i].css('visibility', 'hidden');
-                gameData.gameOver = true;
+
+                gameData.playerWins += (gameData.playerScore == opts.playTo);
+                gameData.compWins += (gameData.compScore == opts.playTo);
 
                 if (opts.secondComp)
                 {
-                    gameData.score.html('Game Over');
+                    scoreTxt = 
+                        (gameData.playerScore < opts.playTo ? 'Winner' : gameData.compScore) +
+                        ' | ' +
+                        (gameData.playerScore >= opts.playTo ? 'Winner' : gameData.playerScore);
                 } else {
                     if(gameData.playerScore == opts.playTo)
                         gameData.score.append('; you win!');
@@ -106,6 +120,23 @@
             } else {
                 PositionBalls(leftScoreDiff, rightScoreDiff, gameData, balls, scoringBallIndexs);
             }
+
+            if (opts.profile)
+            {
+                var profTxt = '';
+                var now = new Date();
+                var elapsed = Math.round((now.valueOf() - gameData.start.valueOf()) / 1000.0);
+                var gamecnt = gameData.playerWins + gameData.compWins;
+                var pointcnt = gameData.compScoreTotal + gameData.playerScoreTotal;
+                var ppg = Math.round(pointcnt / Math.max(1, gamecnt) * 100) / 100;
+                var gametime = Math.round(elapsed / Math.max(1, gamecnt) * 100) / 100;
+                profTxt += "<br>\n" + gamecnt + " games / " + elapsed + " secs"
+                profTxt += "<br>\n sec/game:" + gametime + " ppg:" + ppg;
+                gameData.profile.html(profTxt);
+            }
+
+            gameData.score.html(scoreTxt);
+
         }
 
         ///Is run by the setTimeout function. Updates the gameData object. 
@@ -114,7 +145,7 @@
             if (gameData.gameOver) {
                 if (opts.autoStart)
                 {
-                    setTimeout(function(){Start(gameData, balls);}, 2000);
+                    setTimeout(function(){Start(gameData, balls);}, 1000);
                 }
                 else
                     gameData.msg.html('click to start!');
@@ -331,7 +362,12 @@
                 playerScore: 0, // Player Score
                 speed: 30,      // Actual Game Speed (Dynamic)
                 gameOver: true,
-                delay: new Date()
+                delay: new Date(),
+                start: new Date(),
+                playerScoreTotal: 0,
+                compScoreTotal: 0,
+                playerWins: 0,
+                compWins: 0,
             }
             
             var $this = $(this);
@@ -369,6 +405,7 @@
 
             //$this.append('<textarea class="field" style="position:absolute;background:#000;border:0;top:-9999; left:-9999; width:0;height0;"></textarea>');
             $this.append('<div class="score" style="position:relative;color:#ffffff; font-family: sans-serif; text-align: center; font-weight: bold;">0 | 0</div>');
+            $this.append('<div class="profile" style="position:relative; background-color:inherit;color:#ffffff; font-family: sans-serif; text-align: center; font-size:smaller;"></div>');
             $this.append('<div class="leftPaddle" style="position:absolute;background-color:#ffffff;"></div>');
             $this.append('<div class="rightPaddle" style="position:absolute;background-color:#ffffff;"></div>');
             $this.append('<div class="msg" style="position:absolute; font-size: 8pt; color:#fff; bottom: 2px; right: 2px;"></div>');
@@ -376,6 +413,7 @@
             var leftPaddle = $this.children('.leftPaddle');
             var rightPaddle = $this.children('.rightPaddle');
             var score = $this.children('.score');
+            var profile = $this.children('.profile');
             var msg = $this.children('.msg');
             var field = $this.children('.field');
 
@@ -415,6 +453,7 @@
             gameData.leftPaddle = leftPaddle;
             gameData.rightPaddle = rightPaddle;
             gameData.score = score;
+            gameData.profile = profile;
             gameData.msg = msg;
 
             gameData.speed = opts.targetSpeed;
