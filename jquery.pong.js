@@ -14,6 +14,7 @@
             secondComp: false,// should the right player be a computer too
             ballCount: 1,
             profile: false,
+            maxGames: 0,
             targetSpeed: 30,  //ms
             ballAngle: 45,  //degrees
             ballSpeed: 8,     //pixels per update
@@ -145,7 +146,8 @@
             if (gameData.gameOver) {
                 if (opts.autoStart)
                 {
-                    setTimeout(function(){Start(gameData, balls);}, 1000);
+                    if (opts.maxGames == 0 || gameData.playerWins + gameData.compWins < opts.maxGames)
+                        setTimeout(function(){Start(gameData, balls);}, 1000);
                 }
                 else
                     gameData.msg.html('click to start!');
