@@ -405,7 +405,7 @@
 
             //$this.append('<textarea class="field" style="position:absolute;background:#000;border:0;top:-9999; left:-9999; width:0;height0;"></textarea>');
             $this.append('<div class="score" style="position:relative;color:#ffffff; font-family: sans-serif; text-align: center; font-weight: bold;">0 | 0</div>');
-            $this.append('<div class="profile" style="position:relative; background-color:inherit;color:#ffffff; font-family: sans-serif; text-align: center; font-size:smaller;"></div>');
+            $this.append('<div class="profile" style="position:relative; background-color:#000; color:#ffffff; font-family: sans-serif; text-align: center; font-size:smaller;"></div>');
             $this.append('<div class="leftPaddle" style="position:absolute;background-color:#ffffff;"></div>');
             $this.append('<div class="rightPaddle" style="position:absolute;background-color:#ffffff;"></div>');
             $this.append('<div class="msg" style="position:absolute; font-size: 8pt; color:#fff; bottom: 2px; right: 2px;"></div>');
