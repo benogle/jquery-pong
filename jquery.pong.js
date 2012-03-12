@@ -56,7 +56,7 @@
             {
                 var i = scoringBallIndexs[j];
                 var ball = balls[i];
-                var bolSide = gameData.x[i] <= opts.paddleWidth; // if the rightside is scored on, ball will be on the left side
+                var bolSide = gameData.x[i] < opts.width / 2; // if the rightside is scored on, ball will be on the left side
 
                 if (bolSide) {
                     gameData.x[i] = opts.width - opts.paddleWidth - opts.paddleBuffer - opts.ballWidth - (Math.random() * Math.min(100, opts.width/4));
