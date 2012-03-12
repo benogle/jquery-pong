@@ -367,7 +367,7 @@
                 playerScoreTotal: 0,
                 compScoreTotal: 0,
                 playerWins: 0,
-                compWins: 0,
+                compWins: 0
             }
             
             var $this = $(this);
