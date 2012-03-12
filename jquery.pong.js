@@ -48,7 +48,7 @@
                 for (var i = 0; i < balls.length; i++)
                 {
                     scoringBallIndexs.push(i);
-                    gameData.x.push(Math.random() * 24)
+                    gameData.x.push(Math.random() * 2)
                 }
             }
 
@@ -56,9 +56,9 @@
             {
                 var i = scoringBallIndexs[j];
                 var ball = balls[i];
-                var bolSide = gameData.x[i] < opts.width / 2; // if the rightside is scored on, ball will be on the left side
+                var rightScored = gameData.x[i] < 1; // if the rightside is scored on, ball will be on the left side
 
-                if (bolSide) {
+                if (rightScored) {
                     gameData.x[i] = opts.width - opts.paddleWidth - opts.paddleBuffer - opts.ballWidth - (Math.random() * Math.min(100, opts.width/4));
                 } else {
                     gameData.x[i] = opts.paddleWidth + opts.paddleBuffer + (Math.random() * Math.min(100, opts.width/4));
@@ -68,7 +68,7 @@
                 ball.css('left', gameData.x[i]);
                 ball.css('top', gameData.y[i]);
 
-                if (bolSide != (0>Math.cos(opts.ballAngle[i]*Math.PI/180)>0)) {
+                if (rightScored != (0>Math.cos(opts.ballAngle[i]*Math.PI/180)>0)) {
                     opts.ballAngle[i] += 180
                 }
 
