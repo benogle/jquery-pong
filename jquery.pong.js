@@ -56,12 +56,12 @@
             {
                 var i = scoringBallIndexs[j];
                 var ball = balls[i];
-                var bolSide = gameData.x[i] <= 12; // if the rightside is scored on, ball will be on the left side
+                var bolSide = gameData.x[i] <= opts.paddleWidth; // if the rightside is scored on, ball will be on the left side
 
                 if (bolSide) {
-                    gameData.x[i] = opts.width - opts.paddleWidth - opts.paddleBuffer - opts.ballWidth - (Math.random() * 100);
+                    gameData.x[i] = opts.width - opts.paddleWidth - opts.paddleBuffer - opts.ballWidth - (Math.random() * Math.min(100, opts.width/4));
                 } else {
-                    gameData.x[i] = opts.paddleWidth + opts.paddleBuffer + (Math.random() * 100);
+                    gameData.x[i] = opts.paddleWidth + opts.paddleBuffer + (Math.random() * Math.min(100, opts.width/4));
                 }
                 gameData.y[i] = Math.round(Math.random() * (opts.height - ball.height()));
             
@@ -286,22 +286,20 @@
             }
             
             if (gameData.y[i] > opts.height-opts.ballHeight) {
-                gameData.y[i] = opts.height-opts.ballHeight;
+                gameData.y[i] = opts.height - opts.ballHeight;
                 opts.ballAngle[i] = HB[i];
             }
             
-            if (gameData.x[i] < 1) {
-                gameData.x[i] = 1;
-                opts.ballAngle[i] = VB[i];
+            if (gameData.x[i] <= 0) {
+                gameData.x[i] = 0;
+                //opts.ballAngle[i] = VB[i];
                 gameData.compAdj -= opts.difficulty;
-                
                 rightScoreDiff++;
                 scoringBallIndexs.push(i);
             }
             
-            if (gameData.x[i] > opts.width-opts.ballWidth) {
-                gameData.x[i]=opts.width-opts.ballWidth;
-                opts.ballAngle[i] = VB[i];
+            if (gameData.x[i] >= opts.width - Math.max(opts.ballWidth, opts.ballWidth - opts.paddleWidth)) {
+                //gameData.x[i] = opts.width;
                 leftScoreDiff++;
                 scoringBallIndexs.push(i);
             }
