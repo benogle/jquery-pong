@@ -293,7 +293,8 @@
             if (gameData.x[i] <= 0) {
                 gameData.x[i] = 0;
                 //opts.ballAngle[i] = VB[i];
-                gameData.compAdj -= opts.difficulty;
+                if (!opts.secondComp)
+                    gameData.compAdj -= opts.difficulty;
                 rightScoreDiff++;
                 scoringBallIndexs.push(i);
             }
@@ -311,7 +312,8 @@
                 if (gameData.y[i] < (opts.paddleHeight + LeftTop) && (gameData.y[i]+opts.ballHeight) > LeftTop) {
                     gameData.x[i] = MaxLeft;
                     opts.ballAngle[i] = VB[i];
-                    gameData.compAdj++;
+                    if (!opts.secondComp)
+                        gameData.compAdj++;
                 }
             }
         
@@ -436,6 +438,10 @@
             rightPaddle.css('height', opts.paddleHeight);
             rightPaddle.css('left', opts.width - opts.paddleWidth - opts.paddleBuffer);
             rightPaddle.css('top', Math.round(1+(Math.random()*(opts.height-opts.paddleHeight-2))) );
+
+            // turn off adaptive difficulty if 2 machines are playing
+            if (opts.secondComp)
+                opts.difficulty = 10;
 
             var balls = [];
             for (var i = 0; i < opts.ballCount; i++)
