@@ -437,6 +437,10 @@
             rightPaddle.css('left', opts.width - opts.paddleWidth - opts.paddleBuffer);
             rightPaddle.css('top', Math.round(1+(Math.random()*(opts.height-opts.paddleHeight-2))) );
 
+            // turn off adaptive difficulty if 2 machines are playing
+            if (opts.secondComp)
+                opts.difficulty = 10;
+
             var balls = [];
             for (var i = 0; i < opts.ballCount; i++)
             {
