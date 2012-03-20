@@ -126,12 +126,11 @@
             {
                 var profTxt = '';
                 var now = new Date();
-                var elapsed = Math.round((now.valueOf() - gameData.start.valueOf()) / 1000.0);
                 var gamecnt = gameData.playerWins + gameData.compWins;
                 var pointcnt = gameData.compScoreTotal + gameData.playerScoreTotal;
                 var ppg = Math.round(pointcnt / Math.max(1, gamecnt) * 100) / 100;
-                var gametime = Math.round(elapsed / Math.max(1, gamecnt) * 100) / 100;
-                profTxt += "<br>\n" + gamecnt + " games / " + elapsed + " secs"
+                var gametime = Math.round(gameData.elapsed / Math.max(1, gamecnt) * 100) / 100;
+                profTxt += "<br>\n" + gamecnt + " games / " + gameData.elapsed + " secs"
                 profTxt += "<br>\n sec/game:" + gametime + " ppg:" + ppg;
                 gameData.profile.html(profTxt);
             }
@@ -366,6 +365,7 @@
                 gameOver: true,
                 delay: new Date(),
                 start: new Date(),
+                elapsed: 0,     // number of seconds elapsed since start
                 playerScoreTotal: 0,
                 compScoreTotal: 0,
                 playerWins: 0,
@@ -464,6 +464,8 @@
 
             gameData.speed = opts.targetSpeed;
             Update(gameData, balls);
+
+            setInterval(function(){ gameData.elapsed++; }, 1000);
 
             if (opts.autoStart)
                 Start(gameData, balls);
