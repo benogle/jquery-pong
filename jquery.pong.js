@@ -126,7 +126,7 @@
             {
                 var profTxt = '';
                 var now = new Date();
-                var elapsed = Math.round((now.valueOf() - gameData.start.valueOf()) / 1000.0);
+                var elapsed = Math.round(gameData.elapsed / 1000.0);
                 var gamecnt = gameData.playerWins + gameData.compWins;
                 var pointcnt = gameData.compScoreTotal + gameData.playerScoreTotal;
                 var ppg = Math.round(pointcnt / Math.max(1, gamecnt) * 100) / 100;
@@ -366,6 +366,7 @@
                 gameOver: true,
                 delay: new Date(),
                 start: new Date(),
+                elapsed: 0,     // number of seconds elapsed since start
                 playerScoreTotal: 0,
                 compScoreTotal: 0,
                 playerWins: 0,
@@ -464,6 +465,8 @@
 
             gameData.speed = opts.targetSpeed;
             Update(gameData, balls);
+
+            setInterval(function(){ gameData.elapsed += 1.0;}, 1000);
 
             if (opts.autoStart)
                 Start(gameData, balls);
