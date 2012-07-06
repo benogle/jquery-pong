@@ -28,7 +28,8 @@
             paddleBuffer: 1,  //px from the edge of the play area
             ballWidth: 14,    //px
             ballHeight: 14,   //px
-            playTo: 10        //points
+            playTo: 10,        //points
+            interGamePause: 1000 // msecs
         }
         
         var opts = $.extend(defaults, options);
@@ -146,7 +147,7 @@
                 if (opts.autoStart)
                 {
                     if (opts.maxGames == 0 || gameData.playerWins + gameData.compWins < opts.maxGames)
-                        setTimeout(function(){Start(gameData, balls);}, 1000);
+                        setTimeout(function(){Start(gameData, balls);}, opts.interGamePause);
                 }
                 else
                     gameData.msg.html('click to start!');
